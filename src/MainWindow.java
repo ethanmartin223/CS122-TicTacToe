@@ -7,6 +7,10 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
         setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        TicTacToeBoard board = new TicTacToeBoard(3,3);
+        add(board);
     }
 
     public static void main(String[] args) {

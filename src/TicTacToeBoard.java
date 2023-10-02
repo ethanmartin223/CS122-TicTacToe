@@ -116,6 +116,7 @@ public class TicTacToeBoard extends JPanel {
             }
         }
 
+
         if (avalibleGameSquares.isEmpty()) return 0;
         return 0;
     }

@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +17,10 @@ public class GameSquare extends JButton {
         this.x = x;
         this.y = y;
         this.marker = TicTacToeBoard.OPEN_SPACE;
+        setBackground(Color.WHITE);
 
         addActionListener(this::onClick);
+        setFont(new Font("Arial", Font.PLAIN, 80));
         setVisible(true);
     }
 

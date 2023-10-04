@@ -20,7 +20,7 @@ public class GameSquare extends JButton {
         setBackground(Color.WHITE);
 
         addActionListener(this::onClick);
-        setFont(new Font("Arial", Font.PLAIN, 80));
+        setFont(new Font("Arial", Font.BOLD, 120));
         setVisible(true);
     }
 

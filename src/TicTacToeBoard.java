@@ -40,12 +40,10 @@ public class TicTacToeBoard extends JPanel {
     private void setIsPlayersTurn(boolean value) {
         //check for win
         byte player = detectWin();
-        System.out.println(player);
         if (player != 0) {
             if  (player==X) {
                 JOptionPane.showMessageDialog(null, "The Player Wins!");
-            }
-            else if (player==O) {
+            } else if (player==O) {
                 JOptionPane.showMessageDialog(null, "The Computer Wins!");
             } else {
                 JOptionPane.showMessageDialog(null, "Its A Draw!");
@@ -53,7 +51,6 @@ public class TicTacToeBoard extends JPanel {
             setBoardInput(false);
             return;
         }
-
         isPlayersTurn = value;
         setBoardInput(isPlayersTurn);
         if (!isPlayersTurn) {
@@ -91,7 +88,8 @@ public class TicTacToeBoard extends JPanel {
         return gameBoard[y][x].getMarker();
     }
 
-    //return marker of winner, else return 0
+    //return marker of winner, else return 0, -1 for stalemate
+    // TODO: make the output be read from switch case, add constants for the outputs.
     private byte detectWin() {
         //check horizontal
         for (int y = 0; y < rows; y++){
@@ -99,43 +97,30 @@ public class TicTacToeBoard extends JPanel {
             if (startingMarker == OPEN_SPACE) continue;
             for (int x = 0; x <cols; x++) {
                 if (gameBoard[y][x].getMarker() != startingMarker) break;
-                if (x>=(cols-1)) {
-                    return startingMarker;
-                }
+                if (x>=(cols-1)) return startingMarker;
             }
         }
-        //check horizontal
+        //check Vertical
         for (int x = 0; x < rows; x++){
             byte startingMarker = gameBoard[0][x].getMarker();
             if (startingMarker == OPEN_SPACE) continue;
             for (int y = 0; y <cols; y++) {
                 if (gameBoard[y][x].getMarker() != startingMarker) break;
-                if (y>=(cols-1)) {
-                    return startingMarker;
-                }
+                if (y>=(cols-1)) return startingMarker;
             }
         }
-        //check diagonal
+        //check diagonal TL-BR
         for (int i=0; i<(rows+cols)/2; i++) {
             byte startingMarker = gameBoard[0][0].getMarker();
-            System.out.println("TOP LEFT TO BOTTOM RIGHT: " + i+","+i+" MARK: "+gameBoard[i][i].getMarker());
-            if (startingMarker == OPEN_SPACE) break;
-            if (gameBoard[i][i].getMarker() != startingMarker) break;
-            if (i>=(rows+cols)/2) {
-                return startingMarker;
-            }
+            if ((startingMarker == OPEN_SPACE)||(gameBoard[i][i].getMarker() != startingMarker)) break;
+            if (i>=((rows+cols)/2)-1) return startingMarker;
         }
+        //check diagonal TR-BL
         for (int i=cols-1; i>=0; i--) {
-            byte startingMarker = gameBoard[rows-1][0].getMarker();
-            System.out.println("RIGHT TO BOTTOM LEFT: " + i+","+i+" MARK: "+gameBoard[rows-i][i].getMarker());
-            if (startingMarker == OPEN_SPACE) break;
-            if (gameBoard[rows-i][i].getMarker() != startingMarker) break;
-            if (i==0) {
-                return startingMarker;
-            }
+            byte startingMarker = gameBoard[0][cols-1].getMarker();
+            if ((gameBoard[rows-i-1][i].getMarker() != startingMarker)||(startingMarker == OPEN_SPACE)) break;
+            if (i<=0) return startingMarker;
         }
-
-
         if (avalibleGameSquares.isEmpty()) return -1;
         return 0;
     }

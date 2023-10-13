@@ -14,15 +14,14 @@ public class TicTacToeBoard extends JPanel {
     private boolean isPlayersTurn;
 
     public TicTacToeBoard(int rows, int cols) {
-        this(rows, cols, true);
+        this(rows, cols, true, X);
     }
 
-    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst) {
+    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark) {
         gameBoard = new GameSquare[nCols][nRows];
         avalibleGameSquares = new ArrayList<>();
 
         setLayout(new GridLayout(nCols, nRows));
-        setVisible(true);
         rows = nRows;
         cols = nCols;
         isPlayersTurn = playerGoesFirst;
@@ -34,8 +33,27 @@ public class TicTacToeBoard extends JPanel {
                 add(gameBoard[y][x]);
             }
         }
+        //setIsPlayersTurn(isPlayersTurn);
+        setVisible(true);
 
     }
+
+    //player only method, not fired on computer "click"
+    public void clickGameSquare(int x, int y) {
+        GameSquare gs = gameBoard[y][x];
+        if (isPlayersTurn && !gs.hasBeenPlayed()) {
+            gs.setText("X");
+            gs.setMarker(X);
+            gs.setEnabled(false);
+            avalibleGameSquares.remove(gs);
+            setIsPlayersTurn(false);
+        }
+    }
+
+    public byte getMarkAt(int x, int y) {
+        return gameBoard[y][x].getMarker();
+    }
+
 
     private void setIsPlayersTurn(boolean value) {
         //check for win
@@ -58,34 +76,31 @@ public class TicTacToeBoard extends JPanel {
         }
     }
 
+    //disable board from player input
     private void setBoardInput(boolean enabled) {
         for (GameSquare g: avalibleGameSquares) {
             g.setEnabled(enabled);
         }
     }
 
+    private byte[][] getByteRepresentationOfBoard() {
+        byte[][] result = new byte[gameBoard.length][gameBoard[0].length];
+        for (int y = 0; y < gameBoard.length; y++)
+            for (int x = 0; x < gameBoard[0].length; x++)
+                result[y][x] = gameBoard[y][x].getMarker();
+        return result;
+    }
+
+
     private void doComputerMove() {
-        GameSquare selectedTile = avalibleGameSquares.get((int) (Math.random() * avalibleGameSquares.size()));
+        Node node = TicTacToeAI.generateTree(getByteRepresentationOfBoard(), O);
+        Node move = TicTacToeAI.getBestChild(node, O);
+        GameSquare selectedTile = gameBoard[move.getMoveY()][move.getMoveX()];
         selectedTile.setText("O");
         selectedTile.setMarker(O);
         selectedTile.setEnabled(false);
         avalibleGameSquares.remove(selectedTile);
         setIsPlayersTurn(true);
-    }
-
-    public void clickGameSquare(int x, int y) {
-        GameSquare gs = gameBoard[y][x];
-        if (isPlayersTurn && !gs.hasBeenPlayed()) {
-            gs.setText("X");
-            gs.setMarker(X);
-            gs.setEnabled(false);
-            avalibleGameSquares.remove(gs);
-            setIsPlayersTurn(false);
-        }
-    }
-
-    public byte getMarkAt(int x, int y) {
-        return gameBoard[y][x].getMarker();
     }
 
     //return marker of winner, else return 0, -1 for stalemate

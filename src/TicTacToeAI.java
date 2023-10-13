@@ -1,0 +1,174 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+public abstract class TicTacToeAI {
+
+    private static final int WINNING_BIAS = 10;
+    private static final int LOSING_BIAS = -10;
+    private static final int STALEMATE_BIAS = 0;
+    private static final int CENTER_BIAS = 5;
+
+    private TicTacToeAI() {}
+
+    public static void debugDisplayBoard(byte[][] data) {
+        for (int y = 0; y < data.length; y++) {
+            for (int x = 0; x < data[0].length; x++) {
+                switch (data[y][x]) {
+                    case 0 -> System.out.print(" ");
+                    case 1 -> System.out.print("X");
+                    case 2 -> System.out.print("O");
+                }
+                if (x != data.length - 1) System.out.print(" | ");
+            }
+            if (y != data.length - 1) System.out.println("\n----------");
+        }System.out.println("\n");
+    }
+
+
+    public static Node generateTree(byte[][] data, byte playerTurn) {
+        ArrayList<Node> instances = new ArrayList<>();
+        Node node = generateTree(data, new Node(data, playerTurn), playerTurn, instances);
+        return node;
+    }
+
+    private static Node generateTree(byte[][] boardData, Node parent, byte playerTurn,
+                                               ArrayList<Node> instances) {
+        for (int y = 0; y < boardData.length; y++) {
+            for (int x=0; x<boardData[0].length; x++) {
+                if (boardData[y][x]==0) {
+                    byte[][] boardCopy = deepCopy(boardData);
+                    boardCopy[y][x] = playerTurn;
+                    Node child = new Node(parent, boardCopy, (byte)(playerTurn==1?2:1), (byte)x,(byte)y);
+
+                    // Tie preexisting nodes to parent
+                    boolean foundNodeInTree = false;
+                    for (Node n : instances) {
+                        if ((n.nodeEquals(child))) {
+                            foundNodeInTree = true;
+                            parent.addChild(n);
+                            break;
+                        }
+                    }
+                    if (foundNodeInTree) continue; //if we found a duplicate node then tie and forget
+                    else instances.add(child); // else add new node
+                    parent.addChild(child);
+
+                    int total = evaluateNode(child, (byte)(playerTurn==1?2:1));
+                    child.setScore(total);
+                    if (total != Integer.MAX_VALUE && total != Integer.MIN_VALUE)
+                        generateTree(boardCopy, child, (byte)(playerTurn==1?2:1), instances);
+                }
+            }
+        }
+        return parent;
+    }
+
+
+
+    public static Node getBestChild(Node n, byte playerMaxing) {
+        ArrayList<Node> children = n.getChildren();
+        Node bestNode = null;
+        int bestScore = Integer.MIN_VALUE;
+        int currentScore;
+        for (Node child: children) {
+            currentScore = minMax(child, playerMaxing);
+            debugDisplayBoard(child.getValue());
+            System.out.println(currentScore);
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+                bestNode = child;
+            }
+        }
+        return bestNode;
+    }
+
+    //helper
+    private static int minMax(Node n, byte playerMaxing) {
+        if (n.getChildren().isEmpty()) return n.getScore();
+        int score;
+        if (playerMaxing==n.getPlayerMoved()) {
+            score = Integer.MIN_VALUE;
+            for (Node child : n.getChildren())
+                score = n.getScore()+max(score, minMax(child, playerMaxing));
+        } else {
+            score = Integer.MAX_VALUE;
+            for (Node child : n.getChildren())
+                score = n.getScore()+min(score, minMax(child, playerMaxing));
+        }
+        return score;
+    }
+
+    public static int evaluateNode(Node node, byte playerTurn) {
+        int winner = checkForWin(node);
+        int gameSquareScore = 0;
+        switch (winner) {
+            case 1, 2 -> { //winner found
+                gameSquareScore+= winner==playerTurn?WINNING_BIAS:LOSING_BIAS;
+            }
+            case -1 -> {gameSquareScore += STALEMATE_BIAS;} //draw
+        }
+        //TODO: remove later
+        if (node.getMoveX() == 1 && node.getMoveY() == 1) {
+            gameSquareScore+=CENTER_BIAS;
+            System.out.println("TIMER");
+        }
+        return gameSquareScore;
+    }
+
+    //TODO: Change win detection to only trigger after there are enough tiles on the board for someone to win
+    private static int checkForWin(Node node) {
+        int rows=node.getValue().length, cols=node.getValue()[0].length;
+        byte[][] gameBoard = node.getValue();
+        for (int y = 0; y < rows; y++){
+            byte startingMarker = gameBoard[y][0];
+            if (startingMarker == 0) continue;
+            for (int x = 0; x <cols; x++) {
+                if (gameBoard[y][x] != startingMarker) break;
+                if (x>=(cols-1)) return startingMarker;
+            }
+        }
+        //check Vertical
+        for (int x = 0; x < rows; x++){
+            byte startingMarker = gameBoard[0][x];
+            if (startingMarker == 0) continue;
+            for (int y = 0; y <cols; y++) {
+                if (gameBoard[y][x] != startingMarker) break;
+                if (y>=(cols-1)) return startingMarker;
+            }
+        }
+        //check diagonal TL-BR
+        for (int i=0; i<(rows+cols)/2; i++) {
+            byte startingMarker = gameBoard[0][0];
+            if ((startingMarker == 0)||(gameBoard[i][i] != startingMarker)) break;
+            if (i>=((rows+cols)/2)-1) return startingMarker;
+        }
+        //check diagonal TR-BL
+        for (int i=cols-1; i>=0; i--) {
+            byte startingMarker = gameBoard[0][cols-1];
+            if ((gameBoard[rows-i-1][i] != startingMarker)||(startingMarker == 0)) break;
+            if (i<=0) return startingMarker;
+        }
+
+        //check for draw
+        int spotsFilled = 0;
+        for (int y = 0; y < rows; y++)
+            for (int x = 0; x <cols; x++)
+                if (gameBoard[y][x] != 0) spotsFilled++;
+        if (spotsFilled >= rows*cols) return -1;
+        return 0;
+    }
+
+    //Helper
+    private static byte[][] deepCopy(byte[][] data) {
+        byte[][] copy = new byte[data.length][data[0].length];
+        for (int y = 0; y < data.length; y++)
+            copy[y] = Arrays.copyOf(data[y], data[y].length);
+        return copy;
+    }
+}

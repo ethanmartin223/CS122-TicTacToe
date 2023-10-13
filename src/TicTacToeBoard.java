@@ -52,23 +52,24 @@ public class TicTacToeBoard extends JPanel {
     // ---------------------------- Private Methods ---------------------------- //
     private void setIsPlayersTurn(boolean value) {
         //TODO: Change switch to accept player not being X
-        byte player = detectWin();
-        if (player != 0) {
-            if  (player==X) {
-                JOptionPane.showMessageDialog(null, "The Player Wins!");
-            } else if (player==O) {
-                JOptionPane.showMessageDialog(null, "The Computer Wins!");
-            } else {
-                JOptionPane.showMessageDialog(null, "Its A Draw!");
+        switch(detectWin()) {
+            case 0 -> { //game is not over
+                isPlayersTurn = value;
+                setBoardInput(isPlayersTurn);
+                if (!isPlayersTurn) {
+                    doComputerMove();
+                }
+                return;
             }
-            setBoardInput(false);
-            return;
+
+            //X or O has won
+            case X -> JOptionPane.showMessageDialog(null, "The Player Wins!");
+            case O -> JOptionPane.showMessageDialog(null, "The Computer Wins!");
+
+            //stalemate
+            case -1 -> JOptionPane.showMessageDialog(null, "Its A Draw!");
         }
-        isPlayersTurn = value;
-        setBoardInput(isPlayersTurn);
-        if (!isPlayersTurn) {
-            doComputerMove();
-        }
+        setBoardInput(false);
     }
 
     private void setBoardInput(boolean enabled) {

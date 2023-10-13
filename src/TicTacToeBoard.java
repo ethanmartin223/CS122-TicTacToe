@@ -1,22 +1,21 @@
 import javax.swing.*;
-import javax.swing.plaf.OptionPaneUI;
 import java.awt.*;
 import java.util.ArrayList;
 
 public class TicTacToeBoard extends JPanel {
-    public static byte OPEN_SPACE = 0x0;
-    public static byte X = 0x1;
-    public static byte O = 0x2;
 
+    // ---------------------------- Constants ---------------------------- //
+    public static final byte OPEN_SPACE = 0x0;
+    public static final byte X = 0x1;
+    public static final byte O = 0x2;
+
+    // ---------------------------- Attributes ---------------------------- //
     private int rows, cols;
     private GameSquare[][] gameBoard;
     private ArrayList<GameSquare> avalibleGameSquares;
     private boolean isPlayersTurn;
 
-    public TicTacToeBoard(int rows, int cols) {
-        this(rows, cols, true, X);
-    }
-
+    // ---------------------------- Constructors ---------------------------- //
     public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark) {
         gameBoard = new GameSquare[nCols][nRows];
         avalibleGameSquares = new ArrayList<>();
@@ -38,10 +37,10 @@ public class TicTacToeBoard extends JPanel {
 
     }
 
-    //player only method, not fired on computer "click"
+    // ---------------------------- Public Methods ---------------------------- //
     public void clickGameSquare(int x, int y) {
         GameSquare gs = gameBoard[y][x];
-        if (isPlayersTurn && !gs.hasBeenPlayed()) {
+        if (isPlayersTurn && !gs.getHasBeenPlayed()) {
             gs.setText("X");
             gs.setMarker(X);
             gs.setEnabled(false);
@@ -50,13 +49,9 @@ public class TicTacToeBoard extends JPanel {
         }
     }
 
-    public byte getMarkAt(int x, int y) {
-        return gameBoard[y][x].getMarker();
-    }
-
-
+    // ---------------------------- Private Methods ---------------------------- //
     private void setIsPlayersTurn(boolean value) {
-        //check for win
+        //TODO: Change switch to accept player not being X
         byte player = detectWin();
         if (player != 0) {
             if  (player==X) {
@@ -76,7 +71,6 @@ public class TicTacToeBoard extends JPanel {
         }
     }
 
-    //disable board from player input
     private void setBoardInput(boolean enabled) {
         for (GameSquare g: avalibleGameSquares) {
             g.setEnabled(enabled);
@@ -91,10 +85,8 @@ public class TicTacToeBoard extends JPanel {
         return result;
     }
 
-
     private void doComputerMove() {
-        Node node = TicTacToeAI.generateTree(getByteRepresentationOfBoard(), O);
-        Node move = TicTacToeAI.getBestChild(node, O);
+        Node move = TicTacToeAI.getBestChild(TicTacToeAI.generateTree(getByteRepresentationOfBoard(), O), O);
         GameSquare selectedTile = gameBoard[move.getMoveY()][move.getMoveX()];
         selectedTile.setText("O");
         selectedTile.setMarker(O);
@@ -103,10 +95,8 @@ public class TicTacToeBoard extends JPanel {
         setIsPlayersTurn(true);
     }
 
-    //return marker of winner, else return 0, -1 for stalemate
-    // TODO: make the output be read from switch case, add constants for the outputs.
+    //TODO: remove method duplicate in TicTacToeAI (pass node to static method in class?)
     private byte detectWin() {
-        //check horizontal
         for (int y = 0; y < rows; y++){
             byte startingMarker = gameBoard[y][0].getMarker();
             if (startingMarker == OPEN_SPACE) continue;
@@ -115,7 +105,6 @@ public class TicTacToeBoard extends JPanel {
                 if (x>=(cols-1)) return startingMarker;
             }
         }
-        //check Vertical
         for (int x = 0; x < rows; x++){
             byte startingMarker = gameBoard[0][x].getMarker();
             if (startingMarker == OPEN_SPACE) continue;
@@ -124,17 +113,15 @@ public class TicTacToeBoard extends JPanel {
                 if (y>=(cols-1)) return startingMarker;
             }
         }
-        //check diagonal TL-BR
         for (int i=0; i<(rows+cols)/2; i++) {
             byte startingMarker = gameBoard[0][0].getMarker();
             if ((startingMarker == OPEN_SPACE)||(gameBoard[i][i].getMarker() != startingMarker)) break;
             if (i>=((rows+cols)/2)-1) return startingMarker;
         }
-        //check diagonal TR-BL
         for (int i=cols-1; i>=0; i--) {
             byte startingMarker = gameBoard[0][cols-1].getMarker();
             if ((gameBoard[rows-i-1][i].getMarker() != startingMarker)||(startingMarker == OPEN_SPACE)) break;
-            if (i<=0) return startingMarker;
+            if (i == 0) return startingMarker;
         }
         if (avalibleGameSquares.isEmpty()) return -1;
         return 0;

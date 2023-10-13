@@ -1,60 +1,71 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public abstract class TicTacToeAI {
 
+    // ---------------------------- AI Settings ---------------------------- //
     private static final int WINNING_BIAS = 10;
     private static final int LOSING_BIAS = -10;
     private static final int STALEMATE_BIAS = 0;
     private static final int CENTER_BIAS = 5;
 
+    // ---------------------------- Constructors ---------------------------- //
     private TicTacToeAI() {}
 
-    public static void debugDisplayBoard(byte[][] data) {
-        for (int y = 0; y < data.length; y++) {
-            for (int x = 0; x < data[0].length; x++) {
-                switch (data[y][x]) {
-                    case 0 -> System.out.print(" ");
-                    case 1 -> System.out.print("X");
-                    case 2 -> System.out.print("O");
-                }
-                if (x != data.length - 1) System.out.print(" | ");
-            }
-            if (y != data.length - 1) System.out.println("\n----------");
-        }System.out.println("\n");
-    }
-
-
+    // ---------------------------- Public Methods ---------------------------- //
     public static Node generateTree(byte[][] data, byte playerTurn) {
         ArrayList<Node> instances = new ArrayList<>();
-        Node node = generateTree(data, new Node(data, playerTurn), playerTurn, instances);
-        return node;
+        return generateTree(data, new Node(data, playerTurn), playerTurn, instances);
     }
 
+    public static Node getBestChild(Node n, byte playerMaxing) {
+        ArrayList<Node> children = n.getChildren();
+        Node bestNode = null;
+        int bestScore = Integer.MIN_VALUE;
+        int currentScore;
+        for (Node child: children) {
+            currentScore = minMax(child, playerMaxing);
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+                bestNode = child;
+            }
+        }
+        return bestNode;
+    }
+
+    public static int evaluateNode(Node node, byte playerTurn) {
+        int winner = checkForWin(node);
+        int gameSquareScore = 0;
+        switch (winner) {
+            case 1, 2 -> { //winner found
+                gameSquareScore+= winner==playerTurn?WINNING_BIAS-(node.getDepth()):LOSING_BIAS+(node.getDepth());
+            }
+            case -1 -> {gameSquareScore += STALEMATE_BIAS;} //draw
+        }
+        //TODO: remove later
+        if (node.getMoveX() == 1 && node.getMoveY() == 1) gameSquareScore+=CENTER_BIAS;
+        return gameSquareScore;
+    }
+
+    // ---------------------------- Private Methods ---------------------------- //
     private static Node generateTree(byte[][] boardData, Node parent, byte playerTurn,
-                                               ArrayList<Node> instances) {
+                                     ArrayList<Node> instances) {
         for (int y = 0; y < boardData.length; y++) {
             for (int x=0; x<boardData[0].length; x++) {
                 if (boardData[y][x]==0) {
                     byte[][] boardCopy = deepCopy(boardData);
                     boardCopy[y][x] = playerTurn;
                     Node child = new Node(parent, boardCopy, (byte)(playerTurn==1?2:1), (byte)x,(byte)y);
-
                     // Tie preexisting nodes to parent
                     boolean foundNodeInTree = false;
-                    for (Node n : instances) {
+                    for (Node n : instances)
                         if ((n.nodeEquals(child))) {
                             foundNodeInTree = true;
                             parent.addChild(n);
                             break;
                         }
-                    }
                     if (foundNodeInTree) continue; //if we found a duplicate node then tie and forget
                     else instances.add(child); // else add new node
                     parent.addChild(child);
@@ -69,26 +80,6 @@ public abstract class TicTacToeAI {
         return parent;
     }
 
-
-
-    public static Node getBestChild(Node n, byte playerMaxing) {
-        ArrayList<Node> children = n.getChildren();
-        Node bestNode = null;
-        int bestScore = Integer.MIN_VALUE;
-        int currentScore;
-        for (Node child: children) {
-            currentScore = minMax(child, playerMaxing);
-            debugDisplayBoard(child.getValue());
-            System.out.println(currentScore);
-            if (currentScore > bestScore) {
-                bestScore = currentScore;
-                bestNode = child;
-            }
-        }
-        return bestNode;
-    }
-
-    //helper
     private static int minMax(Node n, byte playerMaxing) {
         if (n.getChildren().isEmpty()) return n.getScore();
         int score;
@@ -104,27 +95,10 @@ public abstract class TicTacToeAI {
         return score;
     }
 
-    public static int evaluateNode(Node node, byte playerTurn) {
-        int winner = checkForWin(node);
-        int gameSquareScore = 0;
-        switch (winner) {
-            case 1, 2 -> { //winner found
-                gameSquareScore+= winner==playerTurn?WINNING_BIAS:LOSING_BIAS;
-            }
-            case -1 -> {gameSquareScore += STALEMATE_BIAS;} //draw
-        }
-        //TODO: remove later
-        if (node.getMoveX() == 1 && node.getMoveY() == 1) {
-            gameSquareScore+=CENTER_BIAS;
-            System.out.println("TIMER");
-        }
-        return gameSquareScore;
-    }
-
-    //TODO: Change win detection to only trigger after there are enough tiles on the board for someone to win
     private static int checkForWin(Node node) {
         int rows=node.getValue().length, cols=node.getValue()[0].length;
         byte[][] gameBoard = node.getValue();
+        //check horizontal
         for (int y = 0; y < rows; y++){
             byte startingMarker = gameBoard[y][0];
             if (startingMarker == 0) continue;
@@ -164,11 +138,11 @@ public abstract class TicTacToeAI {
         return 0;
     }
 
-    //Helper
     private static byte[][] deepCopy(byte[][] data) {
         byte[][] copy = new byte[data.length][data[0].length];
         for (int y = 0; y < data.length; y++)
             copy[y] = Arrays.copyOf(data[y], data[y].length);
         return copy;
     }
+
 }

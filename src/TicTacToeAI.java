@@ -41,17 +41,13 @@ public abstract class TicTacToeAI {
         for (Node child: children) {
             if (child.getWinner() == 0) {
                 currentScore = minMax(child, playerMaxing);
-                System.out.println(currentScore);
-                debugDisplayBoard(child.getValue());
             } else currentScore = child.getWinner()==TicTacToeBoard.X?Integer.MIN_VALUE:Integer.MAX_VALUE;
             if ((currentScore > bestScore) ||
                     (currentScore >= bestScore && child.getMoveX()==1 && child.getMoveY()==1)) {
-                // favor middle move if equal
                 bestScore = currentScore;
                 bestNode = child;
             }
         }
-        System.out.println("------------------------------------------");
         return bestNode;
     }
 
@@ -65,7 +61,6 @@ public abstract class TicTacToeAI {
             }
             case -1 -> {gameSquareScore += STALEMATE_BIAS;} //draw
         }
-        //if (node.getMoveX()==)
         return gameSquareScore;
     }
 
@@ -110,11 +105,11 @@ public abstract class TicTacToeAI {
         if (playerMaxing==n.getPlayerMoved()) {
             score = Integer.MIN_VALUE;
             for (Node child : n.getChildren())
-                score = n.getScore()+max(score, minMax(child, playerMaxing));
+                score = max(score-child.getScore(), minMax(child, playerMaxing));
         } else {
             score = Integer.MAX_VALUE;
             for (Node child : n.getChildren())
-                score = min(score, minMax(child, playerMaxing))-n.getScore();
+                score = min(score+child.getScore(), minMax(child, playerMaxing));
         }
         return score;
     }

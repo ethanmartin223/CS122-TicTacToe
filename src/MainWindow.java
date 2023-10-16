@@ -10,23 +10,15 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        TicTacToeBoard board = new TicTacToeBoard(3,3, true, TicTacToeBoard.X);
+        JLabel winnerText = new JLabel("Testing", SwingConstants.CENTER);
+        add(winnerText, BorderLayout.NORTH);
 
-//        board.debugSetBoardState(new byte[][] {
-//                {0,2,1},
-//                {0,2,0},
-//                {1,0,0},
-//        }); //DEBUG
-
+        TicTacToeBoard board = new TicTacToeBoard(3,3, true, TicTacToeBoard.X,  winnerText);
         add(board, BorderLayout.CENTER);
 
         JButton newGameButton = new JButton("New Game");
         newGameButton.addActionListener(e->board.resetGame());
         add(newGameButton, BorderLayout.SOUTH);
-
-        JLabel winnerText = new JLabel("Testing");
-        add(winnerText, BorderLayout.NORTH);
-
 
         setVisible(true);
     }

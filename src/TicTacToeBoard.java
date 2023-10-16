@@ -14,17 +14,17 @@ public class TicTacToeBoard extends JPanel {
     private GameSquare[][] gameBoard;
     private ArrayList<GameSquare> avalibleGameSquares;
     private boolean isPlayersTurn;
+    private byte playerMark;
+    private JLabel updateLabel;
 
     // ---------------------------- Constructors ---------------------------- //
-    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark) {
+    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark, JLabel upLabel) {
         gameBoard = new GameSquare[nCols][nRows];
         avalibleGameSquares = new ArrayList<>();
-
         setLayout(new GridLayout(nCols, nRows));
         rows = nRows;
         cols = nCols;
         isPlayersTurn = playerGoesFirst;
-
         for (int y = 0; y < nCols; y++) {
             for (int x = 0; x < nRows; x++) {
                 gameBoard[y][x] = new GameSquare(x,y,this);
@@ -32,7 +32,8 @@ public class TicTacToeBoard extends JPanel {
                 add(gameBoard[y][x]);
             }
         }
-
+        updateLabel = upLabel;
+        updateLabel.setText("Player's Turn: Make Your Move!");
         setVisible(true);
 
     }
@@ -47,18 +48,6 @@ public class TicTacToeBoard extends JPanel {
             avalibleGameSquares.remove(gs);
             setIsPlayersTurn(false);
         }
-    }
-
-    public void debugSetBoardState(byte[][] board) {
-        for (int y = 0; y < rows; y++)
-            for (int x = 0; x < cols; x++) {
-                if (board[y][x] != OPEN_SPACE) {
-                    gameBoard[y][x].setMarker(board[y][x]);
-                    gameBoard[y][x].setText(board[y][x]==X?"X":"O");
-                    gameBoard[y][x].setEnabled(false);
-                    avalibleGameSquares.remove(gameBoard[y][x]);
-                }
-            }
     }
 
     public void resetGame() {
@@ -79,16 +68,27 @@ public class TicTacToeBoard extends JPanel {
                 isPlayersTurn = value;
                 setBoardInput(isPlayersTurn);
                 if (!isPlayersTurn) {
+                    updateLabel.setText("Computer is thinking...");
                     doComputerMove();
                 }
+                updateLabel.setText("Player's Turn: Make Your Move!");
                 return;
             }
 
             //X or O has won
-            case X -> JOptionPane.showMessageDialog(null, "The Player Wins!");
-            case O -> JOptionPane.showMessageDialog(null, "The Computer Wins!");
+            case X -> {
+                updateLabel.setText("Player Wins!");
+                JOptionPane.showMessageDialog(null, "The Player Wins!");
+            }
+            case O -> {
+                updateLabel.setText("Computer Wins!");
+                JOptionPane.showMessageDialog(null, "The Computer Wins!");
+            }
             //stalemate
-            case -1 -> JOptionPane.showMessageDialog(null, "Its A Draw!");
+            case -1 -> {
+                updateLabel.setText("Its a Draw!");
+                JOptionPane.showMessageDialog(null, "Its A Draw!");
+            }
         }
         setBoardInput(false);
     }

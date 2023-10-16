@@ -9,7 +9,6 @@ public abstract class TicTacToeAI {
     private static final int WINNING_BIAS = 10;
     private static final int LOSING_BIAS = -10;
     private static final int STALEMATE_BIAS = 0;
-    private static final int CENTER_BIAS = 5;
 
     // ---------------------------- Constructors ---------------------------- //
     private TicTacToeAI() {}
@@ -45,7 +44,9 @@ public abstract class TicTacToeAI {
                 System.out.println(currentScore);
                 debugDisplayBoard(child.getValue());
             } else currentScore = child.getWinner()==TicTacToeBoard.X?Integer.MIN_VALUE:Integer.MAX_VALUE;
-            if (currentScore > bestScore) {
+            if ((currentScore > bestScore) ||
+                    (currentScore >= bestScore && child.getMoveX()==1 && child.getMoveY()==1)) {
+                // favor middle move if equal
                 bestScore = currentScore;
                 bestNode = child;
             }
@@ -113,7 +114,7 @@ public abstract class TicTacToeAI {
         } else {
             score = Integer.MAX_VALUE;
             for (Node child : n.getChildren())
-                score = n.getScore()+min(score, minMax(child, playerMaxing));
+                score = min(score, minMax(child, playerMaxing))-n.getScore();
         }
         return score;
     }

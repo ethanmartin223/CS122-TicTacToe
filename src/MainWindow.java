@@ -12,11 +12,11 @@ public class MainWindow extends JFrame {
 
         TicTacToeBoard board = new TicTacToeBoard(3,3, true, TicTacToeBoard.X);
 
-        board.debugSetBoardState(new byte[][] {
-                {0,0,0},
-                {1,0,0},
-                {2,0,0},
-        }); //DEBUG
+//        board.debugSetBoardState(new byte[][] {
+//                {0,2,1},
+//                {0,2,0},
+//                {1,0,0},
+//        }); //DEBUG
 
         add(board, BorderLayout.CENTER);
 

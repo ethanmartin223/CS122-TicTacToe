@@ -20,18 +20,37 @@ public abstract class TicTacToeAI {
         return generateTree(data, new Node(data, playerTurn), playerTurn, instances);
     }
 
+    public static void debugDisplayBoard(byte[][] data) {
+        for (int y = 0; y < data.length; y++) {
+            for (int x = 0; x < data[0].length; x++) {
+                switch (data[y][x]) {
+                    case 0 -> System.out.print(" ");
+                    case 1 -> System.out.print("X");
+                    case 2 -> System.out.print("O");
+                }
+                if (x != data.length - 1) System.out.print(" | ");
+            }
+            if (y != data.length - 1) System.out.println("\n----------");
+        }System.out.println("\n");
+    }
+
     public static Node getBestChild(Node n, byte playerMaxing) {
         ArrayList<Node> children = n.getChildren();
         Node bestNode = null;
         int bestScore = Integer.MIN_VALUE;
         int currentScore;
         for (Node child: children) {
-            currentScore = minMax(child, playerMaxing);
+            if (child.getWinner() == 0) {
+                currentScore = minMax(child, playerMaxing);
+                System.out.println(currentScore);
+                debugDisplayBoard(child.getValue());
+            } else currentScore = child.getWinner()==TicTacToeBoard.X?Integer.MIN_VALUE:Integer.MAX_VALUE;
             if (currentScore > bestScore) {
                 bestScore = currentScore;
                 bestNode = child;
             }
         }
+        System.out.println("------------------------------------------");
         return bestNode;
     }
 
@@ -40,12 +59,12 @@ public abstract class TicTacToeAI {
         int gameSquareScore = 0;
         switch (winner) {
             case 1, 2 -> { //winner found
-                gameSquareScore+= winner==playerTurn?WINNING_BIAS-(node.getDepth()):LOSING_BIAS+(node.getDepth());
+                gameSquareScore+= winner==playerTurn?WINNING_BIAS:LOSING_BIAS;
+                node.setPlayerWon((byte) winner);
             }
             case -1 -> {gameSquareScore += STALEMATE_BIAS;} //draw
         }
-        //TODO: remove later
-        if (node.getMoveX() == 1 && node.getMoveY() == 1) gameSquareScore+=CENTER_BIAS;
+        //if (node.getMoveX()==)
         return gameSquareScore;
     }
 
@@ -71,9 +90,13 @@ public abstract class TicTacToeAI {
                     parent.addChild(child);
 
                     int total = evaluateNode(child, (byte)(playerTurn==1?2:1));
-                    child.setScore(total);
-                    if (total != Integer.MAX_VALUE && total != Integer.MIN_VALUE)
+                    if (total != WINNING_BIAS && total != LOSING_BIAS){
+                        child.setScore(total);
                         generateTree(boardCopy, child, (byte)(playerTurn==1?2:1), instances);
+                    } else {
+                        if (total == WINNING_BIAS) child.setScore(total-child.getDepth());
+                        else child.setScore(total+child.getDepth());
+                    }
                 }
             }
         }
@@ -94,7 +117,7 @@ public abstract class TicTacToeAI {
         }
         return score;
     }
-
+    
     private static int checkForWin(Node node) {
         int rows=node.getValue().length, cols=node.getValue()[0].length;
         byte[][] gameBoard = node.getValue();

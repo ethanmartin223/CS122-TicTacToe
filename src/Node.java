@@ -11,6 +11,7 @@ public class Node {
     private int depth;
     private byte playerMoved;
     private byte moveX, moveY;
+    private byte playerWon;
 
     // ---------------------------- Constructors ---------------------------- //
     public Node(Node parent, byte[][] v, byte pm, byte x, byte y) {
@@ -24,6 +25,7 @@ public class Node {
         playerMoved = pm;
         moveX =x;
         moveY =y;
+        playerWon = 0;
     }
 
     public Node(byte[][] v, byte pm) {
@@ -42,13 +44,14 @@ public class Node {
     public void setScore(int s) {
         score = s;
     }
+    public void setPlayerWon(byte player) {playerWon=player;}
 
     public ArrayList<Node> getChildren() {return children;}
     public byte[][] getValue() {return value;}
     public int getScore() {return score;}
     public int getDepth() {return depth;}
+    public byte getWinner() {return playerWon;}
     public byte getPlayerMoved() {return playerMoved;}
     public byte getMoveX() {return moveX;}
     public byte getMoveY() {return moveY;}
-
 }

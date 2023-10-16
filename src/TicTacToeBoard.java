@@ -49,6 +49,18 @@ public class TicTacToeBoard extends JPanel {
         }
     }
 
+    public void debugSetBoardState(byte[][] board) {
+        for (int y = 0; y < rows; y++)
+            for (int x = 0; x < cols; x++) {
+                if (board[y][x] != OPEN_SPACE) {
+                    gameBoard[y][x].setMarker(board[y][x]);
+                    gameBoard[y][x].setText(board[y][x]==X?"X":"O");
+                    gameBoard[y][x].setEnabled(false);
+                    avalibleGameSquares.remove(gameBoard[y][x]);
+                }
+            }
+    }
+
     public void resetGame() {
         avalibleGameSquares.clear();
         for (int y = 0; y < rows; y++)

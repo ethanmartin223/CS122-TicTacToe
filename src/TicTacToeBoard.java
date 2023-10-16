@@ -32,7 +32,7 @@ public class TicTacToeBoard extends JPanel {
                 add(gameBoard[y][x]);
             }
         }
-        //setIsPlayersTurn(isPlayersTurn);
+
         setVisible(true);
 
     }
@@ -47,6 +47,16 @@ public class TicTacToeBoard extends JPanel {
             avalibleGameSquares.remove(gs);
             setIsPlayersTurn(false);
         }
+    }
+
+    public void resetGame() {
+        avalibleGameSquares.clear();
+        for (int y = 0; y < rows; y++)
+            for (int x = 0; x < cols; x++) {
+                avalibleGameSquares.add(gameBoard[y][x]);
+                gameBoard[y][x].reset();
+            }
+        setIsPlayersTurn(true);
     }
 
     // ---------------------------- Private Methods ---------------------------- //
@@ -65,7 +75,6 @@ public class TicTacToeBoard extends JPanel {
             //X or O has won
             case X -> JOptionPane.showMessageDialog(null, "The Player Wins!");
             case O -> JOptionPane.showMessageDialog(null, "The Computer Wins!");
-
             //stalemate
             case -1 -> JOptionPane.showMessageDialog(null, "Its A Draw!");
         }

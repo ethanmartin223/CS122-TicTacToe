@@ -27,7 +27,7 @@ public class Node {
     }
 
     public Node(byte[][] v, byte pm) {
-        this(null, v, pm, (byte)-1, (byte)-1); //-1,-1 used as placeholder
+        this(null, v, pm, (byte)-1, (byte)-1);
     }
 
     // ---------------------------- Public Methods ---------------------------- //

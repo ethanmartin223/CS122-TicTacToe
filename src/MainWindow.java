@@ -12,6 +12,11 @@ public class MainWindow extends JFrame {
 
         TicTacToeBoard board = new TicTacToeBoard(3,3, true, TicTacToeBoard.X);
         add(board, BorderLayout.CENTER);
+
+        JButton newGameButton = new JButton("New Game");
+        newGameButton.addActionListener(e->board.resetGame());
+        add(newGameButton, BorderLayout.SOUTH);
+
         setVisible(true);
     }
 

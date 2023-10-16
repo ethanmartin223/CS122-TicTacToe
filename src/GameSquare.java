@@ -29,13 +29,19 @@ public class GameSquare extends JButton {
         this.marker = marker;
     }
 
+    public void reset() {
+        hasBeenPlayed = false;
+        this.marker = TicTacToeBoard.OPEN_SPACE;
+        setText("");
+    }
+
     public byte getMarker() {return marker;}
     public boolean getHasBeenPlayed() {return hasBeenPlayed;}
 
     // ---------------------------- Private Methods ---------------------------- //
+
     private void onClick(ActionEvent event) {
        parentBoard.clickGameSquare(x,y);
        hasBeenPlayed = true;
     }
-
 }

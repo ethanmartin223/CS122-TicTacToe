@@ -10,10 +10,7 @@ public class MainWindow extends JFrame {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JLabel winnerText = new JLabel("Testing", SwingConstants.CENTER);
-        add(winnerText, BorderLayout.NORTH);
-
-        TicTacToeBoard board = new TicTacToeBoard(3,3, true, TicTacToeBoard.X,  winnerText);
+        TicTacToeBoard board = new TicTacToeBoard(3,3, false, TicTacToeBoard.X);
         add(board, BorderLayout.CENTER);
 
         JButton newGameButton = new JButton("New Game");

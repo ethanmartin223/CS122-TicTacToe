@@ -6,9 +6,9 @@ import static java.lang.Math.min;
 public abstract class TicTacToeAI {
 
     // ---------------------------- AI Settings ---------------------------- //
-    private static final int WINNING_BIAS = 10;
-    private static final int LOSING_BIAS = -10;
-    private static final int STALEMATE_BIAS = 0;
+    private static final byte WINNING_BIAS = 10;
+    private static final byte LOSING_BIAS = -10;
+    private static final byte STALEMATE_BIAS = 0;
 
     // ---------------------------- Constructors ---------------------------- //
     private TicTacToeAI() {}

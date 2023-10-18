@@ -15,16 +15,20 @@ public class TicTacToeBoard extends JPanel {
     private ArrayList<GameSquare> avalibleGameSquares;
     private boolean isPlayersTurn;
     private byte playerMark;
-    private JLabel updateLabel;
+    private byte computerMark;
+    private boolean playerGoesFirst;
 
     // ---------------------------- Constructors ---------------------------- //
-    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark, JLabel upLabel) {
+    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark) {
         gameBoard = new GameSquare[nCols][nRows];
         avalibleGameSquares = new ArrayList<>();
         setLayout(new GridLayout(nCols, nRows));
         rows = nRows;
         cols = nCols;
+        this.playerMark = playerMark;
+        this.computerMark = playerMark==TicTacToeBoard.X?TicTacToeBoard.O:TicTacToeBoard.X;
         isPlayersTurn = playerGoesFirst;
+        this.playerGoesFirst = playerGoesFirst;
         for (int y = 0; y < nCols; y++) {
             for (int x = 0; x < nRows; x++) {
                 gameBoard[y][x] = new GameSquare(x,y,this);
@@ -32,18 +36,16 @@ public class TicTacToeBoard extends JPanel {
                 add(gameBoard[y][x]);
             }
         }
-        updateLabel = upLabel;
-        updateLabel.setText("Player's Turn: Make Your Move!");
+        if (!isPlayersTurn) doComputerMove(true);
         setVisible(true);
-
     }
 
     // ---------------------------- Public Methods ---------------------------- //
     public void clickGameSquare(int x, int y) {
         GameSquare gs = gameBoard[y][x];
         if (isPlayersTurn && !gs.getHasBeenPlayed()) {
-            gs.setText("X");
-            gs.setMarker(X);
+            gs.setText(playerMark==TicTacToeBoard.X?"X":"O");
+            gs.setMarker(playerMark);
             gs.setEnabled(false);
             avalibleGameSquares.remove(gs);
             setIsPlayersTurn(false);
@@ -57,38 +59,27 @@ public class TicTacToeBoard extends JPanel {
                 avalibleGameSquares.add(gameBoard[y][x]);
                 gameBoard[y][x].reset();
             }
-        setIsPlayersTurn(true);
+        isPlayersTurn = playerGoesFirst;
+        if (!isPlayersTurn) doComputerMove(true);
+        else setIsPlayersTurn(playerGoesFirst);
     }
 
     // ---------------------------- Private Methods ---------------------------- //
     private void setIsPlayersTurn(boolean value) {
-        //TODO: Change switch to accept player not being X
-        switch(detectWin()) {
-            case 0 -> { //game is not over
-                isPlayersTurn = value;
-                setBoardInput(isPlayersTurn);
-                if (!isPlayersTurn) {
-                    updateLabel.setText("Computer is thinking...");
-                    doComputerMove();
-                }
-                updateLabel.setText("Player's Turn: Make Your Move!");
-                return;
+        byte winner = detectWin();
+        if (winner == 0) { //game is not over
+            isPlayersTurn = value;
+            setBoardInput(isPlayersTurn);
+            if (!isPlayersTurn) {
+                doComputerMove(false);
             }
-
-            //X or O has won
-            case X -> {
-                updateLabel.setText("Player Wins!");
-                JOptionPane.showMessageDialog(null, "The Player Wins!");
-            }
-            case O -> {
-                updateLabel.setText("Computer Wins!");
-                JOptionPane.showMessageDialog(null, "The Computer Wins!");
-            }
-            //stalemate
-            case -1 -> {
-                updateLabel.setText("Its a Draw!");
-                JOptionPane.showMessageDialog(null, "Its A Draw!");
-            }
+            return;
+        } else if (winner == playerMark) {
+            JOptionPane.showMessageDialog(null, "The Player Wins!");
+        } else if (winner == computerMark) {
+            JOptionPane.showMessageDialog(null, "The Computer Wins!");
+        } else {
+            JOptionPane.showMessageDialog(null, "Its A Draw!");
         }
         setBoardInput(false);
     }
@@ -107,17 +98,25 @@ public class TicTacToeBoard extends JPanel {
         return result;
     }
 
-    private void doComputerMove() {
-        Node move = TicTacToeAI.getBestChild(TicTacToeAI.generateTree(getByteRepresentationOfBoard(), O), O);
-        GameSquare selectedTile = gameBoard[move.getMoveY()][move.getMoveX()];
-        selectedTile.setText("O");
-        selectedTile.setMarker(O);
+    private void doComputerMove(boolean isFirstMove) {
+        GameSquare selectedTile;
+        if (!isFirstMove) {
+            long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            Node move = TicTacToeAI.getBestChild(TicTacToeAI.generateTree(getByteRepresentationOfBoard(), computerMark), computerMark);
+            long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            System.out.println(((endMemory - startMemory) / (1e+6) + "mb"));
+            selectedTile = gameBoard[move.getMoveY()][move.getMoveX()];
+        } else {
+            System.out.println("Random move");
+            selectedTile = avalibleGameSquares.get((int) (Math.random()*avalibleGameSquares.size()));
+        }
+        selectedTile.setText(computerMark == TicTacToeBoard.O ? "O" : "X");
+        selectedTile.setMarker(computerMark);
         selectedTile.setEnabled(false);
         avalibleGameSquares.remove(selectedTile);
         setIsPlayersTurn(true);
     }
 
-    //TODO: remove method duplicate in TicTacToeAI (pass node to static method in class?)
     private byte detectWin() {
         for (int y = 0; y < rows; y++){
             byte startingMarker = gameBoard[y][0].getMarker();

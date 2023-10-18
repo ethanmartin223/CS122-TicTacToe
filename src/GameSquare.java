@@ -18,9 +18,10 @@ public class GameSquare extends JButton {
         this.y = y;
         this.marker = TicTacToeBoard.OPEN_SPACE;
         setBackground(Color.WHITE);
+        setFocusPainted(false);
 
         addActionListener(this::onClick);
-        setFont(new Font("Arial", Font.BOLD, 120));
+        setFont(new Font("Arial", Font.BOLD, 180-(gameBoard.getBoardSize()*20)));
         setVisible(true);
     }
 

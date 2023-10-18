@@ -61,7 +61,11 @@ public class TicTacToeBoard extends JPanel {
             }
         isPlayersTurn = playerGoesFirst;
         if (!isPlayersTurn) doComputerMove(true);
-        else setIsPlayersTurn(playerGoesFirst);
+        else setIsPlayersTurn(true);
+    }
+
+    public int getBoardSize() {
+        return cols;
     }
 
     // ---------------------------- Private Methods ---------------------------- //

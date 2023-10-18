@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class GameSquare extends JButton {
 
@@ -22,6 +24,7 @@ public class GameSquare extends JButton {
 
         addActionListener(this::onClick);
         setFont(new Font("Arial", Font.BOLD, 180-(gameBoard.getBoardSize()*20)));
+        //addMouseListener(new HoverListner(this));
         setVisible(true);
     }
 
@@ -36,6 +39,10 @@ public class GameSquare extends JButton {
         setText("");
     }
 
+    public void setPlayed() {
+        hasBeenPlayed = true;
+    }
+
     public byte getMarker() {return marker;}
     public boolean getHasBeenPlayed() {return hasBeenPlayed;}
 
@@ -44,5 +51,23 @@ public class GameSquare extends JButton {
     private void onClick(ActionEvent event) {
        parentBoard.clickGameSquare(x,y);
        hasBeenPlayed = true;
+    }
+
+    // ---------------------------- Internal Classes ---------------------------- //
+    private class HoverListner extends MouseAdapter {
+        GameSquare gameSquare;
+
+        public HoverListner(GameSquare g) {
+
+            gameSquare = g;
+        }
+
+        public void mouseEntered(MouseEvent e) {
+            if (!gameSquare.getHasBeenPlayed()) gameSquare.setText(parentBoard.getPlayerMark()==TicTacToeBoard.X?"X":"O");
+        }
+
+        public void mouseExited(MouseEvent e) {
+            gameSquare.setText(gameSquare.getMarker()==0?"":gameSquare.getMarker()==TicTacToeBoard.X?"X":"O");
+        }
     }
 }

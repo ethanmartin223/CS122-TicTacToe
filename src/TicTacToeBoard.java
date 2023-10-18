@@ -17,9 +17,10 @@ public class TicTacToeBoard extends JPanel {
     private byte playerMark;
     private byte computerMark;
     private boolean playerGoesFirst;
+    private JLabel updateLabel;
 
     // ---------------------------- Constructors ---------------------------- //
-    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark) {
+    public TicTacToeBoard(int nCols, int nRows, boolean playerGoesFirst, byte playerMark, JLabel upLabel) {
         gameBoard = new GameSquare[nCols][nRows];
         avalibleGameSquares = new ArrayList<>();
         setLayout(new GridLayout(nCols, nRows));
@@ -36,7 +37,10 @@ public class TicTacToeBoard extends JPanel {
                 add(gameBoard[y][x]);
             }
         }
+        updateLabel = upLabel;
+
         if (!isPlayersTurn) doComputerMove(true);
+        else updateLabel.setText("Player make your move!");
         setVisible(true);
     }
 
@@ -68,8 +72,13 @@ public class TicTacToeBoard extends JPanel {
         return cols;
     }
 
+    public byte getPlayerMark() {
+        return playerMark;
+    }
+
     // ---------------------------- Private Methods ---------------------------- //
     private void setIsPlayersTurn(boolean value) {
+        updateLabel.setText("Player make your move!");
         byte winner = detectWin();
         if (winner == 0) { //game is not over
             isPlayersTurn = value;
@@ -79,11 +88,17 @@ public class TicTacToeBoard extends JPanel {
             }
             return;
         } else if (winner == playerMark) {
-            JOptionPane.showMessageDialog(null, "The Player Wins!");
+            updateLabel.setText("Player Wins!");
+            JOptionPane.showMessageDialog(null, "The Player Wins!",
+                    "Game Over!", JOptionPane.INFORMATION_MESSAGE);
         } else if (winner == computerMark) {
-            JOptionPane.showMessageDialog(null, "The Computer Wins!");
+            updateLabel.setText("Computer Wins!");
+            JOptionPane.showMessageDialog(null, "The Computer Wins!",
+                    "Game Over!", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(null, "Its A Draw!");
+            updateLabel.setText("Its a Draw!");
+            JOptionPane.showMessageDialog(null, "Its A Draw!",
+                    "Game Over!", JOptionPane.INFORMATION_MESSAGE);
         }
         setBoardInput(false);
     }
@@ -103,20 +118,18 @@ public class TicTacToeBoard extends JPanel {
     }
 
     private void doComputerMove(boolean isFirstMove) {
+        updateLabel.setText("Computer is thinking... ");
         GameSquare selectedTile;
         if (!isFirstMove) {
-            long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
             Node move = TicTacToeAI.getBestChild(TicTacToeAI.generateTree(getByteRepresentationOfBoard(), computerMark), computerMark);
-            long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-            System.out.println(((endMemory - startMemory) / (1e+6) + "mb"));
             selectedTile = gameBoard[move.getMoveY()][move.getMoveX()];
         } else {
-            System.out.println("Random move");
             selectedTile = avalibleGameSquares.get((int) (Math.random()*avalibleGameSquares.size()));
         }
         selectedTile.setText(computerMark == TicTacToeBoard.O ? "O" : "X");
         selectedTile.setMarker(computerMark);
         selectedTile.setEnabled(false);
+        selectedTile.setPlayed();
         avalibleGameSquares.remove(selectedTile);
         setIsPlayersTurn(true);
     }

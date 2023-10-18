@@ -9,6 +9,7 @@ public class MainWindow extends JFrame {
     JSlider selectedBoardSizeSlider, selectedAiDiffucultySlider;
     JPanel menuUI, gameOverButtons;
     TicTacToeBoard ticTacToeBoard;
+    JLabel updateLabel;
     JButton newGameButton, backToMenuButton;
 
     public MainWindow() {
@@ -42,6 +43,8 @@ public class MainWindow extends JFrame {
                 ButtonGroup startingPlayer = new ButtonGroup();
                 playerStarting = new JRadioButton("Player");
                 computerStarting = new JRadioButton("Computer");
+                playerStarting.setFocusPainted(false);
+                computerStarting.setFocusPainted(false);
 
                 JLabel startingPlayerLabel = new JLabel("Starting Player: ");
                 startingPlayer.add(playerStarting);
@@ -53,17 +56,17 @@ public class MainWindow extends JFrame {
             menuUI.add(startingPlayerContainer);
 
             //Board size selector Panel
-            JPanel selectedAiDiffucultyContainer = new JPanel();
-                JLabel aiDiffucultySliderLabel = new JLabel("Computer Difficulty: ");
+            JPanel selectedAiDifficultyContainer = new JPanel();
+                JLabel aiDifficultySliderLabel = new JLabel("Computer Difficulty: ");
                 selectedAiDiffucultySlider = new JSlider(1, 10, 10);
                 selectedAiDiffucultySlider.setPaintLabels(true);
                 selectedAiDiffucultySlider.setMajorTickSpacing(1);
                 selectedAiDiffucultySlider.setMinorTickSpacing(2);
                 selectedAiDiffucultySlider.setMaximumSize(new Dimension(300, 50));
                 selectedAiDiffucultySlider.addChangeListener(this::onAIDifficultySliderChange);
-            selectedAiDiffucultyContainer.add(aiDiffucultySliderLabel);
-            selectedAiDiffucultyContainer.add(selectedAiDiffucultySlider);
-            menuUI.add(selectedAiDiffucultyContainer);
+            selectedAiDifficultyContainer.add(aiDifficultySliderLabel);
+            selectedAiDifficultyContainer.add(selectedAiDiffucultySlider);
+            menuUI.add(selectedAiDifficultyContainer);
 
             //Board size selector Panel
             JPanel selectedBoardSizeContainer = new JPanel();
@@ -96,9 +99,13 @@ public class MainWindow extends JFrame {
 
     private void startGame(ActionEvent actionEvent) {
         menuUI.setVisible(false);
+
+        updateLabel = new JLabel("");
+        add(updateLabel, BorderLayout.PAGE_START);
+
         int boardSize = selectedBoardSizeSlider.getValue();
         TicTacToeAI.STALEMATE_BIAS = (byte) (10-selectedAiDiffucultySlider.getValue());
-        ticTacToeBoard = new TicTacToeBoard(boardSize,boardSize, playerStarting.isSelected(), TicTacToeBoard.X);
+        ticTacToeBoard = new TicTacToeBoard(boardSize,boardSize, playerStarting.isSelected(), TicTacToeBoard.X, updateLabel);
         add(ticTacToeBoard, BorderLayout.CENTER);
 
         gameOverButtons = new JPanel();
@@ -113,7 +120,6 @@ public class MainWindow extends JFrame {
         gameOverButtons.add(backToMenuButton);
 
         add(gameOverButtons, BorderLayout.SOUTH);
-
     }
 
     private void backToMenu(ActionEvent e) {

@@ -12,7 +12,7 @@ public class MainWindow extends JFrame {
         setSize(600, 600);
         setLocationRelativeTo(null);
         setResizable(false);
-        setLayout(new BorderLayout());
+        setLayout(new FlowLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
@@ -32,15 +32,14 @@ public class MainWindow extends JFrame {
         add(startingPlayerContainer);
 
         JPanel selectedBoardSizeContainer = new JPanel();
-            selectedBoardSizeSlider = new JSlider(0, 200, 120);
-            selectedBoardSizeSlider.setPaintTrack(true);
-            selectedBoardSizeSlider.setPaintTicks(true);
+            selectedBoardSizeSlider = new JSlider(3, 9, 3);
             selectedBoardSizeSlider.setPaintLabels(true);
-            selectedBoardSizeSlider.setMajorTickSpacing(50);
-            selectedBoardSizeSlider.setMinorTickSpacing(5);
+            selectedBoardSizeSlider.setMajorTickSpacing(2);
+            selectedBoardSizeSlider.setMinorTickSpacing(2);
             selectedBoardSizeSlider.addChangeListener(this::onSliderChange);
+            add(selectedBoardSizeSlider);
         add(selectedBoardSizeContainer);
-        
+
 
 //        TicTacToeBoard board = new TicTacToeBoard(3,3, false, TicTacToeBoard.X);
 //        add(board, BorderLayout.CENTER);

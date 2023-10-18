@@ -1,14 +1,16 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public abstract class TicTacToeAI {
+public final class TicTacToeAI {
 
     // ---------------------------- AI Settings ---------------------------- //
-    private static final byte WINNING_BIAS = 10;
-    private static final byte LOSING_BIAS = -10;
-    private static final byte STALEMATE_BIAS = 0;
+    public static final byte WINNING_BIAS = 10;
+    public static final byte LOSING_BIAS = -10;
+    public static final byte STALEMATE_BIAS = 0;
 
     // ---------------------------- Constructors ---------------------------- //
     private TicTacToeAI() {}
@@ -84,6 +86,15 @@ public abstract class TicTacToeAI {
                     if (foundNodeInTree) continue; //if we found a duplicate node then tie and forget
                     else instances.add(child); // else add new node
                     parent.addChild(child);
+
+//                    int hash = child.getBoardHashCode();
+//                    if (instances.containsKey(hash)) {
+//                        parent.addChild(instances.get(hash));
+//                        continue; //if we found a duplicate node then tie and forget
+//                    }
+//                    else instances.put(hash, child); // else add new node
+//                    parent.addChild(child);
+
 
                     int total = evaluateNode(child, (byte)(playerTurn==1?2:1));
                     if (total != WINNING_BIAS && total != LOSING_BIAS){

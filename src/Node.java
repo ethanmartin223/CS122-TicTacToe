@@ -33,6 +33,10 @@ public class Node {
     }
 
     // ---------------------------- Public Methods ---------------------------- //
+   public int getBoardHashCode() {
+        return Arrays.deepHashCode(value);
+   }
+
     public boolean nodeEquals(Node other) {
         return Arrays.deepEquals(other.value, this.value);
     }
